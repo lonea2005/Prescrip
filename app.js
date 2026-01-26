@@ -125,7 +125,12 @@ function updateTimer() {
 // Update UI based on current phase
 function updateUI() {
     if (state.phase === WORKING_PHASE) {
-        phaseText.textContent = state.prescript || generatePreScript();
+        // Ensure prescript exists
+        if (!state.prescript) {
+            state.prescript = generatePreScript();
+            saveState();
+        }
+        phaseText.textContent = state.prescript;
         phaseText.style.color = '#2196F3';
         buttonContainer.style.display = 'flex';
     } else {
