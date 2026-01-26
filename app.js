@@ -7,7 +7,8 @@ const REST_DURATION = 20 * 60 * 60 * 1000; // 20 hours in milliseconds
 let state = {
     phase: WORKING_PHASE,
     endTime: null,
-    timerInterval: null
+    timerInterval: null,
+    score: 100
 };
 
 // DOM elements
@@ -15,6 +16,7 @@ const timerDisplay = document.getElementById('timerDisplay');
 const phaseText = document.getElementById('phaseText');
 const doneBtn = document.getElementById('doneBtn');
 const failBtn = document.getElementById('failBtn');
+const buttonContainer = document.querySelector('.button-container');
 
 // Initialize app
 function init() {
@@ -29,8 +31,8 @@ function init() {
     loadState();
     
     // Set up event listeners
-    doneBtn.addEventListener('click', handleDoneOrFail);
-    failBtn.addEventListener('click', handleDoneOrFail);
+    doneBtn.addEventListener('click', handleDone);
+    failBtn.addEventListener('click', handleFail);
     
     // Start timer update loop
     updateTimer();
@@ -45,6 +47,7 @@ function loadState() {
         const parsed = JSON.parse(savedState);
         state.phase = parsed.phase;
         state.endTime = parsed.endTime;
+        state.score = parsed.score !== undefined ? parsed.score : 100;
         
         // Check if timer has expired while app was closed
         if (Date.now() >= state.endTime) {
@@ -52,6 +55,7 @@ function loadState() {
         }
     } else {
         // First time opening app - start working phase
+        state.score = 100;
         startPhase(WORKING_PHASE);
     }
     
@@ -62,7 +66,8 @@ function loadState() {
 function saveState() {
     localStorage.setItem('timerState', JSON.stringify({
         phase: state.phase,
-        endTime: state.endTime
+        endTime: state.endTime,
+        score: state.score
     }));
 }
 
@@ -103,18 +108,30 @@ function updateUI() {
     if (state.phase === WORKING_PHASE) {
         phaseText.textContent = 'Working';
         phaseText.style.color = '#2196F3';
+        buttonContainer.style.display = 'flex';
     } else {
         phaseText.textContent = 'Rest';
         phaseText.style.color = '#4CAF50';
+        buttonContainer.style.display = 'none';
     }
 }
 
-// Handle Done or Fail button press
-function handleDoneOrFail() {
+// Handle Done button press
+function handleDone() {
     if (state.phase === WORKING_PHASE) {
+        state.score += 10;
+        saveState();
         startPhase(REST_PHASE);
     }
-    // Note: Buttons don't do anything during rest phase
+}
+
+// Handle Fail button press
+function handleFail() {
+    if (state.phase === WORKING_PHASE) {
+        state.score -= 30;
+        saveState();
+        startPhase(REST_PHASE);
+    }
 }
 
 // Handle timer expiration
