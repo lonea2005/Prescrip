@@ -45,7 +45,7 @@ function init() {
 // Generate random prescript
 function generatePreScript() {
     const number = Math.floor(Math.random() * 5) + 3; // Random 3-7
-    const parts = ['A', 'B', 'C'];
+    const parts = ['情報部', '培訓部', '安保部'];
     const part = parts[Math.floor(Math.random() * parts.length)];
     return `Get ${number} points from ${part}`;
 }
