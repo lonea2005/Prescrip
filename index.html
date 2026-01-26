@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Prescrip">
+    <title>Prescrip - Timer App</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="theme-color" content="#2196F3">
+</head>
+<body>
+    <div class="container">
+        <div class="score-container">
+            <div class="score-label">Score:</div>
+            <div class="score-display" id="scoreDisplay">100</div>
+        </div>
+        
+        <div class="timer-display" id="timerDisplay">
+            00:00:00
+        </div>
+        
+        <div class="image-container">
+            <img id="phaseImage" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='80' fill='%232196F3' opacity='0.3'/%3E%3Cpath d='M100 40 L100 100 L140 100' stroke='%232196F3' stroke-width='4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" alt="Phase Icon">
+        </div>
+        
+        <div class="phase-text" id="phaseText">
+            Working
+        </div>
+        
+        <div class="button-container">
+            <button class="btn btn-done" id="doneBtn">Done</button>
+            <button class="btn btn-fail" id="failBtn">Fail</button>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
