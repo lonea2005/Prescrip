@@ -50,7 +50,7 @@ function loadState() {
         state.score = parsed.score !== undefined ? parsed.score : 100;
         
         // Check if timer has expired while app was closed
-        if (Date.now() >= state.endTime) {
+        if (state.endTime && Date.now() >= state.endTime) {
             handleTimerExpired();
         }
     } else {
@@ -149,7 +149,7 @@ document.addEventListener('visibilitychange', () => {
         saveState();
     } else {
         // App came back to foreground - check if timer expired
-        if (Date.now() >= state.endTime) {
+        if (state.endTime && Date.now() >= state.endTime) {
             handleTimerExpired();
         }
         updateTimer();

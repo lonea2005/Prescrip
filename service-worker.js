@@ -4,9 +4,7 @@ const urlsToCache = [
     '/index.html',
     '/style.css',
     '/app.js',
-    '/manifest.json',
-    '/icon-192.png',
-    '/icon-512.png'
+    '/manifest.json'
 ];
 
 // Install service worker and cache resources
@@ -15,16 +13,7 @@ self.addEventListener('install', event => {
         caches.open(CACHE_NAME)
             .then(cache => {
                 console.log('Opened cache');
-                // Cache essential files, ignore failures for icons
-                return cache.addAll([
-                    '/',
-                    '/index.html',
-                    '/style.css',
-                    '/app.js',
-                    '/manifest.json'
-                ]).catch(err => {
-                    console.log('Some files failed to cache, continuing anyway');
-                });
+                return cache.addAll(urlsToCache);
             })
     );
 });
