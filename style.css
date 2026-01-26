@@ -21,6 +21,29 @@ body {
     width: 90%;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     text-align: center;
+    position: relative;
+}
+
+.score-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.score-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+}
+
+.score-display {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2196F3;
+    min-width: 40px;
 }
 
 .timer-display {
@@ -43,11 +66,12 @@ body {
 }
 
 .phase-text {
-    font-size: 32px;
+    font-size: 20px;
     font-weight: 600;
     color: #333;
     margin-bottom: 40px;
-    text-transform: capitalize;
+    line-height: 1.4;
+    padding: 0 10px;
 }
 
 .button-container {
@@ -113,11 +137,19 @@ body {
     }
     
     .phase-text {
-        font-size: 28px;
+        font-size: 18px;
     }
     
     .image-container img {
         width: 150px;
         height: 150px;
+    }
+    
+    .score-label {
+        font-size: 12px;
+    }
+    
+    .score-display {
+        font-size: 20px;
     }
 }

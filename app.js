@@ -2,13 +2,14 @@
 const WORKING_PHASE = 'working';
 const REST_PHASE = 'rest';
 const WORKING_DURATION = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
-const REST_DURATION = 20 * 60 * 60 * 1000; // 20 hours in milliseconds
+const REST_DURATION = 16 * 60 * 60 * 1000; // 16 hours in milliseconds
 
 let state = {
     phase: WORKING_PHASE,
     endTime: null,
     timerInterval: null,
-    score: 100
+    score: 100,
+    prescript: null
 };
 
 // DOM elements
@@ -17,6 +18,7 @@ const phaseText = document.getElementById('phaseText');
 const doneBtn = document.getElementById('doneBtn');
 const failBtn = document.getElementById('failBtn');
 const buttonContainer = document.querySelector('.button-container');
+const scoreDisplay = document.getElementById('scoreDisplay');
 
 // Initialize app
 function init() {
@@ -36,7 +38,16 @@ function init() {
     
     // Start timer update loop
     updateTimer();
+    updateScore();
     state.timerInterval = setInterval(updateTimer, 1000);
+}
+
+// Generate random prescript
+function generatePreScript() {
+    const number = Math.floor(Math.random() * 5) + 3; // Random 3-7
+    const parts = ['A', 'B', 'C'];
+    const part = parts[Math.floor(Math.random() * parts.length)];
+    return `Get ${number} points from ${part}`;
 }
 
 // Load state from localStorage
@@ -48,6 +59,7 @@ function loadState() {
         state.phase = parsed.phase;
         state.endTime = parsed.endTime;
         state.score = parsed.score !== undefined ? parsed.score : 100;
+        state.prescript = parsed.prescript || null;
         
         // Check if timer has expired while app was closed
         if (state.endTime && Date.now() >= state.endTime) {
@@ -67,8 +79,14 @@ function saveState() {
     localStorage.setItem('timerState', JSON.stringify({
         phase: state.phase,
         endTime: state.endTime,
-        score: state.score
+        score: state.score,
+        prescript: state.prescript
     }));
+}
+
+// Update score display
+function updateScore() {
+    scoreDisplay.textContent = state.score;
 }
 
 // Start a new phase
@@ -77,6 +95,7 @@ function startPhase(phase) {
     
     if (phase === WORKING_PHASE) {
         state.endTime = Date.now() + WORKING_DURATION;
+        state.prescript = generatePreScript();
     } else {
         state.endTime = Date.now() + REST_DURATION;
     }
@@ -106,7 +125,7 @@ function updateTimer() {
 // Update UI based on current phase
 function updateUI() {
     if (state.phase === WORKING_PHASE) {
-        phaseText.textContent = 'Working';
+        phaseText.textContent = state.prescript || generatePreScript();
         phaseText.style.color = '#2196F3';
         buttonContainer.style.display = 'flex';
     } else {
@@ -114,12 +133,14 @@ function updateUI() {
         phaseText.style.color = '#4CAF50';
         buttonContainer.style.display = 'none';
     }
+    updateScore();
 }
 
 // Handle Done button press
 function handleDone() {
     if (state.phase === WORKING_PHASE) {
         state.score += 10;
+        updateScore();
         saveState();
         startPhase(REST_PHASE);
     }
@@ -129,6 +150,7 @@ function handleDone() {
 function handleFail() {
     if (state.phase === WORKING_PHASE) {
         state.score -= 30;
+        updateScore();
         saveState();
         startPhase(REST_PHASE);
     }
