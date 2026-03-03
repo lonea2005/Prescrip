@@ -204,10 +204,11 @@ function handleTimerExpired() {
 // Handle timer expiration while offline (could be multiple cycles)
 function handleTimerExpiredOffline() {
     const now = Date.now();
-    const timePassed = now - state.endTime;
+    const timeSinceExpiration = now - state.endTime;
     
-    // Calculate how many complete 12-hour cycles have passed
-    const expiredCycles = Math.floor(timePassed / TIMER_DURATION) + 1;
+    // Calculate how many complete 12-hour cycles have passed since expiration
+    // At minimum 1 cycle (the initial expiration), plus any additional full cycles
+    const expiredCycles = 1 + Math.floor(timeSinceExpiration / TIMER_DURATION);
     
     // Deduct 10 points per expired cycle
     state.score -= 10 * expiredCycles;
