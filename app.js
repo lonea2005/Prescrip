@@ -12,6 +12,9 @@ let state = {
     prescript: null
 };
 
+// Loaded prescript definitions from prescripts.json
+let prescriptDefs = null;
+
 // DOM elements
 const timerDisplay = document.getElementById('timerDisplay');
 const phaseText = document.getElementById('phaseText');
@@ -21,14 +24,23 @@ const buttonContainer = document.querySelector('.button-container');
 const scoreDisplay = document.getElementById('scoreDisplay');
 
 // Initialize app
-function init() {
+async function init() {
     // Register service worker
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('service-worker.js')
             .then(reg => console.log('Service Worker registered'))
             .catch(err => console.log('Service Worker registration failed:', err));
     }
-    
+
+    // Load prescript definitions
+    try {
+        const res = await fetch('prescripts.json');
+        const data = await res.json();
+        prescriptDefs = data.prescripts;
+    } catch (e) {
+        console.warn('Failed to load prescripts.json, using fallback:', e);
+    }
+
     // Load saved state or start fresh
     loadState();
     
@@ -42,12 +54,39 @@ function init() {
     state.timerInterval = setInterval(updateTimer, 1000);
 }
 
-// Generate random prescript
+// Generate random prescript using loaded definitions
 function generatePreScript() {
-    const number = Math.floor(Math.random() * 5) + 3; // Random 3-7
-    const parts = ['情報部', '培訓部', '安保部'];
-    const part = parts[Math.floor(Math.random() * parts.length)];
-    return `Get ${number} points from ${part}`;
+    if (!prescriptDefs || prescriptDefs.length === 0) {
+        return '在情報部獲取5分';
+    }
+
+    // Weighted random selection
+    const totalWeight = prescriptDefs.reduce((sum, p) => sum + p.weight, 0);
+    let rand = Math.random() * totalWeight;
+    let selected = prescriptDefs[prescriptDefs.length - 1];
+    let cumulative = 0;
+    for (const p of prescriptDefs) {
+        cumulative += p.weight;
+        if (rand < cumulative) {
+            selected = p;
+            break;
+        }
+    }
+
+    // Process template variables
+    let text = selected.template;
+    if (selected.variables) {
+        for (const [key, def] of Object.entries(selected.variables)) {
+            let value;
+            if (def.type === 'range') {
+                value = Math.floor(Math.random() * (def.max - def.min + 1)) + def.min;
+            } else if (def.type === 'choice') {
+                value = def.values[Math.floor(Math.random() * def.values.length)];
+            }
+            text = text.replaceAll(`{${key}}`, value);
+        }
+    }
+    return text;
 }
 
 // Load state from localStorage

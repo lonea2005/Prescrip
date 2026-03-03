@@ -1,0 +1,96 @@
+{
+  "version": "1.0",
+  "comment": "在此文件中修改 weight 可調整各指令的抽出機率，新增項目至 prescripts 陣列可增加新指令。變數類型：range（整數範圍）或 choice（從清單中隨機選取）。",
+  "prescripts": [
+    {
+      "id": 1,
+      "template": "在{部門}獲取{分數}分",
+      "weight": 4,
+      "variables": {
+        "部門": { "type": "choice", "values": ["控制部", "情報部", "培訓部", "安保部"] },
+        "分數": { "type": "range", "min": 3, "max": 7 }
+      }
+    },
+    {
+      "id": 2,
+      "template": "從中央本部獲得{數量}個PEbox",
+      "weight": 1,
+      "variables": {
+        "數量": { "type": "range", "min": 1, "max": 3 }
+      }
+    },
+    {
+      "id": 3,
+      "template": "今天禁止翹課",
+      "weight": 0.5
+    },
+    {
+      "id": 4,
+      "template": "完成任意非必要作業",
+      "weight": 0.5
+    },
+    {
+      "id": 5,
+      "template": "完成任意作業",
+      "weight": 0.5
+    },
+    {
+      "id": 6,
+      "template": "如果今天有小考，答對一半以上的題目，否則完成任意非必要作業",
+      "weight": 0.5
+    },
+    {
+      "id": 7,
+      "template": "coding {分鐘}分鐘以上",
+      "weight": 0.5,
+      "variables": {
+        "分鐘": { "type": "range", "min": 60, "max": 120 }
+      }
+    },
+    {
+      "id": 8,
+      "template": "進行專題研究",
+      "weight": 0.5
+    },
+    {
+      "id": 9,
+      "template": "運動{大卡}大卡",
+      "weight": 0.5,
+      "variables": {
+        "大卡": { "type": "range", "min": 200, "max": 500 }
+      }
+    },
+    {
+      "id": 10,
+      "template": "製作一個EGO",
+      "weight": 0.1
+    },
+    {
+      "id": 11,
+      "template": "如果今天會見面，進行{次數}次{行為}",
+      "weight": 0.4,
+      "variables": {
+        "次數": { "type": "range", "min": 3, "max": 5 },
+        "行為": { "type": "choice", "values": ["眼神接觸", "有情感提問", "仔細記憶她的故事", "主動提問並聊開", "別開臉微笑", "色色的話題"] }
+      }
+    },
+    {
+      "id": 12,
+      "template": "如果今天會見面，禁止{行為}",
+      "weight": 0.4,
+      "variables": {
+        "行為": { "type": "choice", "values": ["尷尬的中止任何話題", "用一個草回應對方"] }
+      }
+    },
+    {
+      "id": 13,
+      "template": "今天月色真美",
+      "weight": 0.2
+    },
+    {
+      "id": 14,
+      "template": "血祭",
+      "weight": 0.1
+    }
+  ]
+}
