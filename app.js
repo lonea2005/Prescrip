@@ -1,11 +1,7 @@
 // App state
-const WORKING_PHASE = 'working';
-const REST_PHASE = 'rest';
-const WORKING_DURATION = 8 * 60 * 60 * 1000; // 8 hours in milliseconds
-const REST_DURATION = 16 * 60 * 60 * 1000; // 16 hours in milliseconds
+const TIMER_DURATION = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
 
 let state = {
-    phase: WORKING_PHASE,
     endTime: null,
     timerInterval: null,
     score: 100,
@@ -20,6 +16,8 @@ const timerDisplay = document.getElementById('timerDisplay');
 const phaseText = document.getElementById('phaseText');
 const doneBtn = document.getElementById('doneBtn');
 const failBtn = document.getElementById('failBtn');
+const rerollBtn = document.getElementById('rerollBtn');
+const resetBtn = document.getElementById('resetBtn');
 const buttonContainer = document.querySelector('.button-container');
 const scoreDisplay = document.getElementById('scoreDisplay');
 
@@ -47,6 +45,8 @@ async function init() {
     // Set up event listeners
     doneBtn.addEventListener('click', handleDone);
     failBtn.addEventListener('click', handleFail);
+    rerollBtn.addEventListener('click', handleReroll);
+    resetBtn.addEventListener('click', handleReset);
     
     // Start timer update loop
     updateTimer();
@@ -95,19 +95,18 @@ function loadState() {
     
     if (savedState) {
         const parsed = JSON.parse(savedState);
-        state.phase = parsed.phase;
         state.endTime = parsed.endTime;
         state.score = parsed.score !== undefined ? parsed.score : 100;
         state.prescript = parsed.prescript || null;
         
-        // Check if timer has expired while app was closed
+        // Check if timer has expired while app was closed (possibly multiple times)
         if (state.endTime && Date.now() >= state.endTime) {
-            handleTimerExpired();
+            handleTimerExpiredOffline();
         }
     } else {
-        // First time opening app - start working phase
+        // First time opening app - start fresh
         state.score = 100;
-        startPhase(WORKING_PHASE);
+        startNewRound();
     }
     
     updateUI();
@@ -116,7 +115,6 @@ function loadState() {
 // Save state to localStorage
 function saveState() {
     localStorage.setItem('timerState', JSON.stringify({
-        phase: state.phase,
         endTime: state.endTime,
         score: state.score,
         prescript: state.prescript
@@ -128,17 +126,10 @@ function updateScore() {
     scoreDisplay.textContent = state.score;
 }
 
-// Start a new phase
-function startPhase(phase) {
-    state.phase = phase;
-    
-    if (phase === WORKING_PHASE) {
-        state.endTime = Date.now() + WORKING_DURATION;
-        state.prescript = generatePreScript();
-    } else {
-        state.endTime = Date.now() + REST_DURATION;
-    }
-    
+// Start a new round (new instruction, reset timer)
+function startNewRound() {
+    state.endTime = Date.now() + TIMER_DURATION;
+    state.prescript = generatePreScript();
     saveState();
     updateUI();
 }
@@ -161,52 +152,69 @@ function updateTimer() {
         `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
-// Update UI based on current phase
+// Update UI based on current state
 function updateUI() {
-    if (state.phase === WORKING_PHASE) {
-        // Ensure prescript exists
-        if (!state.prescript) {
-            state.prescript = generatePreScript();
-            saveState();
-        }
-        phaseText.textContent = state.prescript;
-        phaseText.style.color = '#2196F3';
-        buttonContainer.style.display = 'flex';
-    } else {
-        phaseText.textContent = 'Rest';
-        phaseText.style.color = '#4CAF50';
-        buttonContainer.style.display = 'none';
+    // Ensure prescript exists
+    if (!state.prescript) {
+        state.prescript = generatePreScript();
+        saveState();
     }
+    phaseText.textContent = state.prescript;
+    phaseText.style.color = '#2196F3';
+    buttonContainer.style.display = 'flex';
     updateScore();
 }
 
 // Handle Done button press
 function handleDone() {
-    if (state.phase === WORKING_PHASE) {
-        state.score += 10;
-        updateScore();
-        saveState();
-        startPhase(REST_PHASE);
-    }
+    state.score += 10;
+    updateScore();
+    startNewRound();
 }
 
 // Handle Fail button press
 function handleFail() {
-    if (state.phase === WORKING_PHASE) {
-        state.score -= 30;
-        updateScore();
-        saveState();
-        startPhase(REST_PHASE);
-    }
+    state.score -= 10;
+    updateScore();
+    startNewRound();
 }
 
-// Handle timer expiration
+// Handle Reroll button press
+function handleReroll() {
+    state.score -= 5;
+    state.prescript = generatePreScript();
+    updateScore();
+    saveState();
+    updateUI();
+}
+
+// Handle Reset button press
+function handleReset() {
+    state.score = 100;
+    startNewRound();
+}
+
+// Handle timer expiration (while app is open)
 function handleTimerExpired() {
-    if (state.phase === WORKING_PHASE) {
-        startPhase(REST_PHASE);
-    } else {
-        startPhase(WORKING_PHASE);
-    }
+    state.score -= 10;
+    updateScore();
+    startNewRound();
+}
+
+// Handle timer expiration while offline (could be multiple cycles)
+function handleTimerExpiredOffline() {
+    const now = Date.now();
+    const timeSinceExpiration = now - state.endTime;
+    
+    // Calculate how many complete 12-hour cycles have passed since expiration
+    // At minimum 1 cycle (the initial expiration), plus any additional full cycles
+    const expiredCycles = 1 + Math.floor(timeSinceExpiration / TIMER_DURATION);
+    
+    // Deduct 10 points per expired cycle
+    state.score -= 10 * expiredCycles;
+    
+    // Start a new round with fresh timer
+    startNewRound();
 }
 
 // Handle visibility change (app going to background)
@@ -216,7 +224,7 @@ document.addEventListener('visibilitychange', () => {
     } else {
         // App came back to foreground - check if timer expired
         if (state.endTime && Date.now() >= state.endTime) {
-            handleTimerExpired();
+            handleTimerExpiredOffline();
         }
         updateTimer();
     }
