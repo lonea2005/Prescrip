@@ -1,0 +1,94 @@
+{
+  "prescripts": [
+    {
+      "id": 1,
+      "weight": 4,
+      "template": "在{XXX}獲取{OO}分",
+      "variables": {
+        "XXX": { "type": "list", "options": ["控制部", "情報部", "培訓部", "安保部"] },
+        "OO": { "type": "range", "min": 3, "max": 7 }
+      }
+    },
+    {
+      "id": 2,
+      "weight": 1,
+      "template": "從中央本部獲得{X}個PEbox",
+      "variables": {
+        "X": { "type": "range", "min": 1, "max": 3 }
+      }
+    },
+    {
+      "id": 3,
+      "weight": 0.5,
+      "template": "今天禁止翹課"
+    },
+    {
+      "id": 4,
+      "weight": 0.5,
+      "template": "完成任意非必要作業"
+    },
+    {
+      "id": 5,
+      "weight": 0.5,
+      "template": "完成任意作業"
+    },
+    {
+      "id": 6,
+      "weight": 0.5,
+      "template": "如果今天有小考，答對一半以上的題目，否則完成任意非必要作業"
+    },
+    {
+      "id": 7,
+      "weight": 0.5,
+      "template": "coding {X} 分鐘以上",
+      "variables": {
+        "X": { "type": "range", "min": 60, "max": 120 }
+      }
+    },
+    {
+      "id": 8,
+      "weight": 0.5,
+      "template": "進行專題研究"
+    },
+    {
+      "id": 9,
+      "weight": 0.5,
+      "template": "運動{X}大卡",
+      "variables": {
+        "X": { "type": "range", "min": 200, "max": 500 }
+      }
+    },
+    {
+      "id": 10,
+      "weight": 0.1,
+      "template": "製作一個EGO"
+    },
+    {
+      "id": 11,
+      "weight": 0.4,
+      "template": "如果今天會見面，進行{OO}次{XXX}",
+      "variables": {
+        "OO": { "type": "range", "min": 3, "max": 5 },
+        "XXX": { "type": "list", "options": ["眼神接觸", "有情感提問", "仔細記憶她的故事", "主動提問並聊開", "別開臉微笑", "色色的話題"] }
+      }
+    },
+    {
+      "id": 12,
+      "weight": 0.4,
+      "template": "如果今天會見面，禁止{XXX}",
+      "variables": {
+        "XXX": { "type": "list", "options": ["尷尬的中止任何話題", "用一個草回應對方"] }
+      }
+    },
+    {
+      "id": 13,
+      "weight": 0.2,
+      "template": "今天月色真美"
+    },
+    {
+      "id": 14,
+      "weight": 0.1,
+      "template": "血祭"
+    }
+  ]
+}

@@ -12,6 +12,9 @@ let state = {
     prescript: null
 };
 
+// Prescript configuration (loaded from prescripts.json)
+let prescriptConfig = null;
+
 // DOM elements
 const timerDisplay = document.getElementById('timerDisplay');
 const phaseText = document.getElementById('phaseText');
@@ -21,14 +24,17 @@ const buttonContainer = document.querySelector('.button-container');
 const scoreDisplay = document.getElementById('scoreDisplay');
 
 // Initialize app
-function init() {
+async function init() {
     // Register service worker
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('service-worker.js')
             .then(reg => console.log('Service Worker registered'))
             .catch(err => console.log('Service Worker registration failed:', err));
     }
-    
+
+    // Load prescript configuration
+    await loadPrescriptConfig();
+
     // Load saved state or start fresh
     loadState();
     
@@ -42,12 +48,71 @@ function init() {
     state.timerInterval = setInterval(updateTimer, 1000);
 }
 
-// Generate random prescript
+// Load prescript config from prescripts.json
+async function loadPrescriptConfig() {
+    try {
+        const response = await fetch('prescripts.json');
+        prescriptConfig = await response.json();
+    } catch (e) {
+        console.error('Failed to load prescripts.json, using default', e);
+        prescriptConfig = {
+            prescripts: [
+                {
+                    "id": 1,
+                    "weight": 4,
+                    "template": "在{XXX}獲取{OO}分",
+                    "variables": {
+                        "XXX": { "type": "list", "options": ["控制部", "情報部", "培訓部", "安保部"] },
+                        "OO": { "type": "range", "min": 3, "max": 7 }
+                    }
+                }
+            ]
+        };
+    }
+}
+
+// Return a random integer between min and max (inclusive)
+function randomInRange(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Generate random prescript using weighted selection from config
 function generatePreScript() {
-    const number = Math.floor(Math.random() * 5) + 3; // Random 3-7
-    const parts = ['情報部', '培訓部', '安保部'];
-    const part = parts[Math.floor(Math.random() * parts.length)];
-    return `Get ${number} points from ${part}`;
+    const prescripts = prescriptConfig && prescriptConfig.prescripts;
+    if (!prescripts || prescripts.length === 0) {
+        return '在情報部獲取5分';
+    }
+
+    // Weighted random selection
+    const totalWeight = prescripts.reduce((sum, p) => sum + p.weight, 0);
+    let random = Math.random() * totalWeight;
+    let selected = null;
+    for (const prescript of prescripts) {
+        random -= prescript.weight;
+        if (random <= 0) {
+            selected = prescript;
+            break;
+        }
+    }
+    if (!selected) {
+        selected = prescripts[0];
+    }
+
+    // Template variable substitution
+    let text = selected.template;
+    if (selected.variables) {
+        for (const [key, def] of Object.entries(selected.variables)) {
+            let value;
+            if (def.type === 'list') {
+                value = def.options[Math.floor(Math.random() * def.options.length)];
+            } else if (def.type === 'range') {
+                value = randomInRange(def.min, def.max);
+            }
+            text = text.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
+        }
+    }
+
+    return text;
 }
 
 // Load state from localStorage
