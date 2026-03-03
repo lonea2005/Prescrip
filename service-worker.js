@@ -1,10 +1,11 @@
-const CACHE_NAME = 'prescrip-v1';
+const CACHE_NAME = 'prescrip-v2';
 const urlsToCache = [
     '/',
     '/index.html',
     '/style.css',
     '/app.js',
-    '/manifest.json'
+    '/manifest.json',
+    '/prescripts.json'
 ];
 
 // Install service worker and cache resources
